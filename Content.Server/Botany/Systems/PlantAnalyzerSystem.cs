@@ -148,9 +148,10 @@ public sealed class PlantAnalyzerSystem : EntitySystem
             };
         }
 
+        // Open the UI first so the client is ready to receive the scan data.
+        _ui.OpenUi(uid, PlantAnalyzerUiKey.Key, args.Args.User);
         _ui.ServerSendUiMessage(uid, PlantAnalyzerUiKey.Key,
             new PlantAnalyzerScannedMessage(isPlant, seedInfo, holderInfo));
-        _ui.OpenUi(uid, PlantAnalyzerUiKey.Key, args.Args.User);
         args.Handled = true;
     }
 }
