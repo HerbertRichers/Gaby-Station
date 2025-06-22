@@ -1,0 +1,46 @@
+- type: entity
+  id: PlantAnalyzerUnpowered
+  parent: BaseItem
+  name: plant analyzer
+  description: A device used to scan plants. It seems to malfunction.
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Hydroponics/plantanalyzer.rsi
+    state: icon
+    layers:
+      - state: icon
+      - state: analyzer
+        shader: unshaded
+        visible: true
+        map: [ "enum.PowerDeviceVisualLayers.Powered" ]
+  - type: Item
+    heldPrefix: analyzer
+    storedRotation: -90
+  - type: PlantAnalyzer
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.PowerCellSlotVisuals.Enabled:
+        enum.PowerDeviceVisualLayers.Powered:
+          True: { visible: true }
+          False: { visible: false }
+
+- type: entity
+  id: PlantAnalyzer
+  parent: [ PlantAnalyzerUnpowered, PowerCellSlotSmallItem ]
+  suffix: Powered
+  components:
+  - type: PowerCellDraw
+    drawRate: 1.2
+  - type: ToggleCellDraw
+  - type: ActivatableUIRequiresPowerCell
+
+- type: entity
+  id: PlantAnalyzerEmpty
+  parent: PlantAnalyzer
+  suffix: Empty
+  components:
+  - type: ItemSlots
+    slots:
+      cell_slot:
+        name: power-cell-slot-component-slot-name-default

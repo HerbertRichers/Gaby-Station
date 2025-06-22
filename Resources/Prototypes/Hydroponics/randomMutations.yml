@@ -165,11 +165,11 @@
       persists: false
       effect: !type:PlantChangeStat
         targetValue: Ligneous
-    - name: ChangeTurnIntoKudzu
-      baseOdds: 0.036
-      persists: false
-      effect: !type:PlantChangeStat
-        targetValue: TurnIntoKudzu
+    # - name: ChangeTurnIntoKudzu
+    #   baseOdds: 0.036
+    #   persists: false
+    #   effect: !type:PlantChangeStat
+    #     targetValue: TurnIntoKudzu
     - name: ChangeScreaming
       baseOdds: 0.036
       persists: false
