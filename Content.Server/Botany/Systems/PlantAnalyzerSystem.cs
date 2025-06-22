@@ -84,92 +84,72 @@ public sealed class PlantAnalyzerSystem : EntitySystem
             return;
         }
 
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("[SCANNER DE PLANTAS]");
+        var seedInfo = new PlantSeedInfo
+        {
+            Name = seedData.Name,
+            DisplayName = seedData.DisplayName,
+            Noun = seedData.Noun,
+            Potency = seedData.Potency,
+            Yield = seedData.Yield,
+            Maturation = seedData.Maturation,
+            Endurance = seedData.Endurance,
+            Lifespan = seedData.Lifespan,
+            Production = seedData.Production,
+            Seedless = seedData.Seedless,
+            Viable = seedData.Viable,
+            WaterConsumption = seedData.WaterConsumption,
+            NutrientConsumption = seedData.NutrientConsumption,
+            IdealLight = seedData.IdealLight,
+            LightTolerance = seedData.LightTolerance,
+            IdealHeat = seedData.IdealHeat,
+            HeatTolerance = seedData.HeatTolerance,
+            LowPressureTolerance = seedData.LowPressureTolerance,
+            HighPressureTolerance = seedData.HighPressureTolerance,
+            ToxinsTolerance = seedData.ToxinsTolerance,
+            PestTolerance = seedData.PestTolerance,
+            WeedTolerance = seedData.WeedTolerance,
+        };
 
-        if (isPlant)
-            sb.AppendLine("\n[INFORMAÇÕES DA PLANTA]");
-        else
-            sb.AppendLine("\n[INFORMAÇÕES DA SEMENTE]");
+        foreach (var chem in seedData.Chemicals)
+        {
+            seedInfo.Chemicals.Add(new PlantChemEntry
+            {
+                Id = chem.Key,
+                Min = chem.Value.Min,
+                Max = chem.Value.Max,
+                PotDiv = chem.Value.PotencyDivisor,
+            });
+        }
 
-        sb.AppendLine($"Nome: {seedData.Name}");
-        sb.AppendLine($"Nome de Exibição: {seedData.DisplayName}");
-        sb.AppendLine($"Tipo: {seedData.Noun}");
+        foreach (var mutation in seedData.Mutations)
+        {
+            seedInfo.Mutations.Add(mutation.Name);
+        }
 
-        sb.AppendLine("\n[GENÉTICA]");
-        sb.AppendLine($"- Potência: {seedData.Potency}");
-        sb.AppendLine($"- Rendimento: {seedData.Yield}");
-        sb.AppendLine($"- Maturação: {seedData.Maturation} ciclos");
-        sb.AppendLine($"- Vida Máxima: {seedData.Endurance}");
-        sb.AppendLine($"- Tempo de Vida: {seedData.Lifespan} ciclos");
-        sb.AppendLine($"- Produção: {seedData.Production}");
-        sb.AppendLine($"- Pode gerar sementes: {(seedData.Seedless ? "Não" : "Sim")}");
+        PlantHolderInfo? holderInfo = null;
 
         if (isPlant && plant != null)
         {
-            sb.AppendLine("\n[STATUS DA PLANTA]");
-            sb.AppendLine($"- Saúde: {plant.Health}/{seedData.Endurance}");
-            sb.AppendLine($"- Idade: {plant.Age} ciclos");
-            sb.AppendLine($"- Pronta para colheita: {(plant.Harvest ? "Sim" : "Não")}");
-            sb.AppendLine($"- Amostrada: {(plant.Sampled ? "Sim" : "Não")}");
-            sb.AppendLine($"- Estado: {(plant.Dead ? "Morta" : "Saudável")}");
-            sb.AppendLine($"- Viabilidade Genética: {(seedData.Viable ? "Saudável" : "Defeituosa")}");
-
-            sb.AppendLine("\n[CONDIÇÕES DO VASO]");
-            sb.AppendLine($"- Água no vaso: {plant.WaterLevel}/100");
-            sb.AppendLine($"- Nutrientes no vaso: {plant.NutritionLevel}/100");
-            sb.AppendLine($"- Toxinas acumuladas: {plant.Toxins}");
-            sb.AppendLine($"- Infestação de pragas: {plant.PestLevel}");
-            sb.AppendLine($"- Ervas daninhas: {plant.WeedLevel}");
-
-            sb.AppendLine("\n[AVISOS AMBIENTAIS]");
-            sb.AppendLine($"- Temperatura: {(plant.ImproperHeat ? "Incorreta" : "OK")}");
-            sb.AppendLine($"- Pressão: {(plant.ImproperPressure ? "Incorreta" : "OK")}");
-            sb.AppendLine($"- Luz: {(plant.ImproperLight ? "Incorreta" : "OK")}");
-        }
-
-        sb.AppendLine("\n[CONSUMO]");
-        sb.AppendLine($"- Água: {seedData.WaterConsumption} por ciclo");
-        sb.AppendLine($"- Nutrientes: {seedData.NutrientConsumption} por ciclo");
-
-        sb.AppendLine("\n[TOLERÂNCIAS]");
-        sb.AppendLine($"- Luz: Ideal {seedData.IdealLight} ± {seedData.LightTolerance}");
-        sb.AppendLine($"- Temperatura: Ideal {seedData.IdealHeat} ± {seedData.HeatTolerance}");
-        sb.AppendLine($"- Pressão: {seedData.LowPressureTolerance} - {seedData.HighPressureTolerance} kPa");
-        sb.AppendLine($"- Toxinas: até {seedData.ToxinsTolerance}");
-        sb.AppendLine($"- Pragas: até {seedData.PestTolerance}");
-        sb.AppendLine($"- Ervas daninhas: até {seedData.WeedTolerance}");
-
-        sb.AppendLine("\n[QUÍMICOS]");
-        if (seedData.Chemicals.Count > 0)
-        {
-            foreach (var chem in seedData.Chemicals)
+            holderInfo = new PlantHolderInfo
             {
-                sb.AppendLine($"- {chem.Key} (Min: {chem.Value.Min}, Max: {chem.Value.Max}, PotDiv: {chem.Value.PotencyDivisor})");
-            }
-        }
-        else
-        {
-            sb.AppendLine("Nenhum químico presente.");
-        }
-
-        sb.AppendLine("\n[MUTAÇÕES ATIVAS]");
-        if (seedData.Mutations.Count > 0)
-        {
-            foreach (var mutation in seedData.Mutations)
-            {
-                sb.AppendLine($"- {mutation.Name}");
-            }
-        }
-        else
-        {
-            sb.AppendLine("Nenhuma mutação.");
+                Health = plant.Health,
+                Age = plant.Age,
+                HarvestReady = plant.Harvest,
+                Sampled = plant.Sampled,
+                Dead = plant.Dead,
+                WaterLevel = plant.WaterLevel,
+                NutritionLevel = plant.NutritionLevel,
+                Toxins = plant.Toxins,
+                PestLevel = plant.PestLevel,
+                WeedLevel = plant.WeedLevel,
+                ImproperHeat = plant.ImproperHeat,
+                ImproperPressure = plant.ImproperPressure,
+                ImproperLight = plant.ImproperLight,
+            };
         }
 
-        var msg = new FormattedMessage();
-        msg.AddText(sb.ToString());
-
-        _ui.SetUiState(uid, PlantAnalyzerUiKey.Key, new PlantAnalyzerBoundUserInterfaceState(msg));
+        _ui.ServerSendUiMessage(uid, PlantAnalyzerUiKey.Key,
+            new PlantAnalyzerScannedMessage(isPlant, seedInfo, holderInfo));
         _ui.OpenUi(uid, PlantAnalyzerUiKey.Key, args.Args.User);
         args.Handled = true;
     }

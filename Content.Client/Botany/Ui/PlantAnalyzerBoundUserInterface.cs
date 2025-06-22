@@ -15,12 +15,15 @@ public sealed class PlantAnalyzerBoundUserInterface(EntityUid owner, Enum uiKey)
         _window.OpenCentered();
     }
 
-    protected override void UpdateState(BoundUserInterfaceState state)
+    protected override void ReceiveMessage(BoundUserInterfaceMessage message)
     {
-        base.UpdateState(state);
-        if (state is not PlantAnalyzerBoundUserInterfaceState cast || _window == null)
+        if (_window == null)
             return;
-        _window.DisplayMessage(cast.Message);
+
+        if (message is not PlantAnalyzerScannedMessage cast)
+            return;
+
+        _window.DisplayInfo(cast);
     }
 
     protected override void Dispose(bool disposing)
