@@ -86,9 +86,9 @@ public sealed class PlantAnalyzerSystem : EntitySystem
 
         var seedInfo = new PlantSeedInfo
         {
-            Name = seedData.Name,
-            DisplayName = seedData.DisplayName,
-            Noun = seedData.Noun,
+            Name = Loc.GetString(seedData.Name),
+            DisplayName = Loc.GetString(seedData.DisplayName),
+            Noun = Loc.GetString(seedData.Noun),
             Potency = seedData.Potency,
             Yield = seedData.Yield,
             Maturation = seedData.Maturation,
