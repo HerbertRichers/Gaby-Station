@@ -14,23 +14,35 @@ public sealed partial class PlantAnalyzerWindow : FancyWindow
     public PlantAnalyzerWindow()
     {
         RobustXamlLoader.Load(this);
+
+        InfoButton.OnPressed += _ => Tabs.CurrentTab = 0;
+        ChemButton.OnPressed += _ => Tabs.CurrentTab = 1;
+        MutButton.OnPressed += _ => Tabs.CurrentTab = 2;
+
+        TabContainer.SetTabTitle(InfoTab, "Info");
+        TabContainer.SetTabTitle(ChemTab, "Chemicals");
+        TabContainer.SetTabTitle(MutTab, "Mutations");
     }
 
     public void DisplayInfo(PlantAnalyzerScannedMessage msg)
 {
-    SectionContainer.DisposeAllChildren();
+    InfoContainer.DisposeAllChildren();
+    ChemContainer.DisposeAllChildren();
+    MutContainer.DisposeAllChildren();
 
-    AddHeader("SCANNER DE PLANTAS");
+    AddHeader(InfoContainer, "SCANNER DE PLANTAS");
 
-    AddHeader(msg.IsPlant ? "INFORMAÇÕES DA PLANTA" : "INFORMAÇÕES DA SEMENTE");
+    AddHeader(InfoContainer, msg.IsPlant ? "INFORMAÇÕES DA PLANTA" : "INFORMAÇÕES DA SEMENTE");
 
     var seed = msg.Seed;
-    AddGrid(("Nome", seed.Name),
+    AddGrid(InfoContainer,
+            ("Nome", seed.Name),
             ("Nome de Exibição", seed.DisplayName),
             ("Tipo", seed.Noun));
 
-    AddHeader("GENÉTICA");
-    AddGrid(("Potência", seed.Potency.ToString()),
+    AddHeader(InfoContainer, "GENÉTICA");
+    AddGrid(InfoContainer,
+            ("Potência", seed.Potency.ToString()),
             ("Rendimento", seed.Yield.ToString()),
             ("Maturação", $"{seed.Maturation} ciclos"),
             ("Vida Máxima", seed.Endurance.ToString()),
@@ -40,71 +52,76 @@ public sealed partial class PlantAnalyzerWindow : FancyWindow
 
     if (msg.IsPlant && msg.Holder is { } holder)
     {
-        AddHeader("STATUS DA PLANTA");
-        AddGrid(("Saúde", $"{holder.Health}/{seed.Endurance}"),
+        AddHeader(InfoContainer, "STATUS DA PLANTA");
+        AddGrid(InfoContainer,
+                ("Saúde", $"{holder.Health}/{seed.Endurance}"),
                 ("Idade", $"{holder.Age} ciclos"),
                 ("Pronta para colheita", holder.HarvestReady ? "Sim" : "Não"),
                 ("Amostrada", holder.Sampled ? "Sim" : "Não"),
                 ("Estado", holder.Dead ? "Morta" : "Saudável"),
                 ("Viabilidade Genética", seed.Viable ? "Saudável" : "Defeituosa"));
 
-        AddHeader("CONDIÇÕES DO VASO");
-        AddGrid(("Água", $"{holder.WaterLevel}/100"),
+        AddHeader(InfoContainer, "CONDIÇÕES DO VASO");
+        AddGrid(InfoContainer,
+                ("Água", $"{holder.WaterLevel}/100"),
                 ("Nutrientes", $"{holder.NutritionLevel}/100"),
                 ("Toxinas", holder.Toxins.ToString()),
                 ("Pragas", holder.PestLevel.ToString()),
                 ("Ervas daninhas", holder.WeedLevel.ToString()));
 
-        AddHeader("AVISOS AMBIENTAIS");
-        AddGrid(("Temperatura", holder.ImproperHeat ? "Incorreta" : "OK"),
+        AddHeader(InfoContainer, "AVISOS AMBIENTAIS");
+        AddGrid(InfoContainer,
+                ("Temperatura", holder.ImproperHeat ? "Incorreta" : "OK"),
                 ("Pressão", holder.ImproperPressure ? "Incorreta" : "OK"),
                 ("Luz", holder.ImproperLight ? "Incorreta" : "OK"));
     }
 
-    AddHeader("CONSUMO");
-    AddGrid(("Água", $"{seed.WaterConsumption} por ciclo"),
+    AddHeader(InfoContainer, "CONSUMO");
+    AddGrid(InfoContainer,
+            ("Água", $"{seed.WaterConsumption} por ciclo"),
             ("Nutrientes", $"{seed.NutrientConsumption} por ciclo"));
 
-    AddHeader("TOLERÂNCIAS");
-    AddGrid(("Luz", $"Ideal {seed.IdealLight} ± {seed.LightTolerance}"),
+    AddHeader(InfoContainer, "TOLERÂNCIAS");
+    AddGrid(InfoContainer,
+            ("Luz", $"Ideal {seed.IdealLight} ± {seed.LightTolerance}"),
             ("Temperatura", $"Ideal {seed.IdealHeat} ± {seed.HeatTolerance}"),
             ("Pressão", $"{seed.LowPressureTolerance} - {seed.HighPressureTolerance} kPa"),
             ("Toxinas", $"até {seed.ToxinsTolerance}"),
             ("Pragas", $"até {seed.PestTolerance}"),
             ("Ervas daninhas", $"até {seed.WeedTolerance}"));
 
-    AddHeader("QUÍMICOS");
+    AddHeader(ChemContainer, "QUÍMICOS");
     if (seed.Chemicals.Count > 0)
     {
         foreach (var chem in seed.Chemicals)
-            AddLabel($"- {chem.Id} (Min: {chem.Min}, Max: {chem.Max}, PotDiv: {chem.PotDiv})");
+            AddLabel(ChemContainer, $"- {chem.Id} (Min: {chem.Min}, Max: {chem.Max}, PotDiv: {chem.PotDiv})");
     }
     else
     {
-        AddLabel("Nenhum químico presente.");
+        AddLabel(ChemContainer, "Nenhum químico presente.");
     }
 
-    AddHeader("MUTAÇÕES ATIVAS");
+    AddHeader(MutContainer, "MUTAÇÕES ATIVAS");
     if (seed.Mutations.Count > 0)
     {
         foreach (var mut in seed.Mutations)
-            AddLabel($"- {mut}");
+            AddLabel(MutContainer, $"- {mut}");
     }
     else
     {
-        AddLabel("Nenhuma mutação.");
+        AddLabel(MutContainer, "Nenhuma mutação.");
     }
 }
 
-private void AddHeader(string text)
+private static void AddHeader(BoxContainer container, string text)
 {
     var label = new Label { Text = text };
     label.AddStyleClass(StyleClassLabelBig);
-    SectionContainer.AddChild(label);
-    SectionContainer.AddChild(new PanelContainer { StyleClasses = { "LowDivider" } });
+    container.AddChild(label);
+    container.AddChild(new PanelContainer { StyleClasses = { "LowDivider" } });
 }
 
-private void AddGrid(params (string, string)[] entries)
+private static void AddGrid(BoxContainer container, params (string, string)[] entries)
 {
     var grid = new GridContainer { Columns = 2 };
     foreach (var (key, value) in entries)
@@ -112,12 +129,12 @@ private void AddGrid(params (string, string)[] entries)
         grid.AddChild(new Label { Text = key });
         grid.AddChild(new Label { Text = value });
     }
-    SectionContainer.AddChild(grid);
-    SectionContainer.AddChild(new PanelContainer { StyleClasses = { "LowDivider" } });
+    container.AddChild(grid);
+    container.AddChild(new PanelContainer { StyleClasses = { "LowDivider" } });
 }
 
-private void AddLabel(string text)
+private static void AddLabel(BoxContainer container, string text)
 {
-    SectionContainer.AddChild(new Label { Text = text });
+    container.AddChild(new Label { Text = text });
 }
 }

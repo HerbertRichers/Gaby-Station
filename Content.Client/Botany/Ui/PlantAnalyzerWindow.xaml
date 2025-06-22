@@ -5,8 +5,22 @@
     MinSize="350 400"
     SetSize="350 400">
     <BoxContainer Orientation="Vertical" Margin="8" VerticalExpand="True">
-        <ScrollContainer VerticalExpand="True">
-            <BoxContainer Name="SectionContainer" Orientation="Vertical" VerticalExpand="True" />
-        </ScrollContainer>
+        <BoxContainer Orientation="Horizontal" Margin="0 0 0 4">
+            <Button Name="InfoButton" Text="Info" HorizontalExpand="True" StyleClasses="OpenRight" />
+            <Button Name="ChemButton" Text="Chemicals" HorizontalExpand="True" StyleClasses="OpenBoth" />
+            <Button Name="MutButton" Text="Mutations" HorizontalExpand="True" StyleClasses="OpenLeft" />
+        </BoxContainer>
+        <PanelContainer StyleClasses="LowDivider" />
+        <TabContainer Name="Tabs" VerticalExpand="True">
+            <ScrollContainer Name="InfoTab">
+                <BoxContainer Name="InfoContainer" Orientation="Vertical" VerticalExpand="True" />
+            </ScrollContainer>
+            <ScrollContainer Name="ChemTab">
+                <BoxContainer Name="ChemContainer" Orientation="Vertical" VerticalExpand="True" />
+            </ScrollContainer>
+            <ScrollContainer Name="MutTab">
+                <BoxContainer Name="MutContainer" Orientation="Vertical" VerticalExpand="True" />
+            </ScrollContainer>
+        </TabContainer>
     </BoxContainer>
 </controls:FancyWindow>
