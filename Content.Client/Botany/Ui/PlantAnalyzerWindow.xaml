@@ -1,0 +1,10 @@
+<controls:FancyWindow
+    xmlns="https://spacestation14.io"
+    xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+    Title="Plant Analyzer"
+    MinSize="350 400"
+    SetSize="350 400">
+    <BoxContainer Orientation="Vertical" Margin="10" VerticalExpand="True">
+        <RichTextLabel Name="TextDisplay" VerticalExpand="True" />
+    </BoxContainer>
+</controls:FancyWindow>

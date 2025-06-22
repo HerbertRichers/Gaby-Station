@@ -17,6 +17,10 @@
     heldPrefix: analyzer
     storedRotation: -90
   - type: PlantAnalyzer
+  - type: UserInterface
+    interfaces:
+      enum.PlantAnalyzerUiKey.Key:
+        type: PlantAnalyzerBoundUserInterface
   - type: Appearance
   - type: GenericVisualizer
     visuals:
@@ -33,6 +37,10 @@
   - type: PowerCellDraw
     drawRate: 1.2
   - type: ToggleCellDraw
+  - type: UserInterface
+    interfaces:
+      enum.PlantAnalyzerUiKey.Key:
+        type: PlantAnalyzerBoundUserInterface
   - type: ActivatableUIRequiresPowerCell
 
 - type: entity
