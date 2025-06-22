@@ -4,7 +4,9 @@
     Title="Plant Analyzer"
     MinSize="350 400"
     SetSize="350 400">
-    <BoxContainer Orientation="Vertical" Margin="10" VerticalExpand="True">
-        <RichTextLabel Name="TextDisplay" VerticalExpand="True" />
+    <BoxContainer Orientation="Vertical" Margin="8" VerticalExpand="True">
+        <ScrollContainer VerticalExpand="True">
+            <BoxContainer Name="SectionContainer" Orientation="Vertical" VerticalExpand="True" />
+        </ScrollContainer>
     </BoxContainer>
 </controls:FancyWindow>
