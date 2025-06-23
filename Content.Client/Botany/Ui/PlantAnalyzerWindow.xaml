@@ -1,0 +1,26 @@
+<controls:FancyWindow
+    xmlns="https://spacestation14.io"
+    xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+    Title="Plant Analyzer"
+    MinWidth="800"
+    MinHeight="525">
+    <BoxContainer Orientation="Vertical" VerticalExpand="True">
+        <BoxContainer Orientation="Horizontal" Margin="8 10 8 10">
+            <Button Name="InfoButton" Text="Info" HorizontalExpand="True" StyleClasses="OpenRight" />
+            <Button Name="ChemButton" Text="Chemicals" HorizontalExpand="True" StyleClasses="OpenBoth" />
+            <Button Name="MutButton" Text="Mutations" HorizontalExpand="True" StyleClasses="OpenLeft" />
+        </BoxContainer>
+        <PanelContainer StyleClasses="LowDivider" />
+        <TabContainer Name="Tabs" VerticalExpand="True">
+            <ScrollContainer Name="InfoTab" Margin="5" ReturnMeasure="True" VerticalExpand="True">
+                <BoxContainer Name="InfoContainer" Orientation="Vertical" VerticalExpand="True" />
+            </ScrollContainer>
+            <ScrollContainer Name="ChemTab" Margin="5" ReturnMeasure="True" VerticalExpand="True">
+                <BoxContainer Name="ChemContainer" Orientation="Vertical" VerticalExpand="True" />
+            </ScrollContainer>
+            <ScrollContainer Name="MutTab" Margin="5" ReturnMeasure="True" VerticalExpand="True">
+                <BoxContainer Name="MutContainer" Orientation="Vertical" VerticalExpand="True" />
+            </ScrollContainer>
+        </TabContainer>
+    </BoxContainer>
+</controls:FancyWindow>

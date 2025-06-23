@@ -6,6 +6,8 @@ using Content.Shared.Interaction;
 using Content.Shared.DoAfter;
 using Content.Shared.Interaction.Events;
 using Content.Shared.PlantAnalyzer;
+using Robust.Server.GameObjects;
+using Robust.Shared.Utility;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Prototypes;
 
@@ -17,6 +19,7 @@ public sealed class PlantAnalyzerSystem : EntitySystem
     [Dependency] private readonly PopupSystem _popup = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
+    [Dependency] private readonly UserInterfaceSystem _ui = default!;
 
     public override void Initialize()
     {
@@ -78,105 +81,77 @@ public sealed class PlantAnalyzerSystem : EntitySystem
 
         if (seedData == null)
         {
-            Console.WriteLine("=======================================");
-            Console.WriteLine("SeedData não encontrado! Alvo não é planta nem semente.");
-            Console.WriteLine("=======================================");
             return;
         }
 
-        Console.WriteLine("=======================================");
-        Console.WriteLine("========= SCANNER DE PLANTAS =========");
-
-        if (isPlant)
+        var seedInfo = new PlantSeedInfo
         {
-            Console.WriteLine("\n[INFORMAÇÕES DA PLANTA]");
-        }
-        else
+            Name = Loc.GetString(seedData.Name),
+            DisplayName = Loc.GetString(seedData.DisplayName),
+            Noun = Loc.GetString(seedData.Noun),
+            Potency = seedData.Potency,
+            Yield = seedData.Yield,
+            Maturation = seedData.Maturation,
+            Endurance = seedData.Endurance,
+            Lifespan = seedData.Lifespan,
+            Production = seedData.Production,
+            Seedless = seedData.Seedless,
+            Viable = seedData.Viable,
+            WaterConsumption = seedData.WaterConsumption,
+            NutrientConsumption = seedData.NutrientConsumption,
+            IdealLight = seedData.IdealLight,
+            LightTolerance = seedData.LightTolerance,
+            IdealHeat = seedData.IdealHeat,
+            HeatTolerance = seedData.HeatTolerance,
+            LowPressureTolerance = seedData.LowPressureTolerance,
+            HighPressureTolerance = seedData.HighPressureTolerance,
+            ToxinsTolerance = seedData.ToxinsTolerance,
+            PestTolerance = seedData.PestTolerance,
+            WeedTolerance = seedData.WeedTolerance,
+        };
+
+        foreach (var chem in seedData.Chemicals)
         {
-            Console.WriteLine("\n[INFORMAÇÕES DA SEMENTE]");
+            seedInfo.Chemicals.Add(new PlantChemEntry
+            {
+                Id = chem.Key,
+                Min = chem.Value.Min,
+                Max = chem.Value.Max,
+                PotDiv = chem.Value.PotencyDivisor,
+            });
         }
 
-        Console.WriteLine($"Nome: {seedData.Name}");
-        Console.WriteLine($"Nome de Exibição: {seedData.DisplayName}");
-        Console.WriteLine($"Tipo: {seedData.Noun}");
+        foreach (var mutation in seedData.Mutations)
+        {
+            seedInfo.Mutations.Add(mutation.Name);
+        }
 
-        // Informações Genéticas
-        Console.WriteLine("\n[GENÉTICA]");
-        Console.WriteLine($"- Potência: {seedData.Potency}");
-        Console.WriteLine($"- Rendimento (Yield): {seedData.Yield}");
-        Console.WriteLine($"- Maturação: {seedData.Maturation} ciclos");
-        Console.WriteLine($"- Vida Máxima (Endurance): {seedData.Endurance}");
-        Console.WriteLine($"- Tempo de Vida (Lifespan): {seedData.Lifespan} ciclos");
-        Console.WriteLine($"- Produção: {seedData.Production}");
-        Console.WriteLine($"- Pode gerar sementes: {(seedData.Seedless ? "❌" : "✔️")}");
+        PlantHolderInfo? holderInfo = null;
 
-        // Se for planta plantada, mostra status dinâmico
         if (isPlant && plant != null)
         {
-            Console.WriteLine("\n[STATUS DA PLANTA]");
-            Console.WriteLine($"- Saúde: {plant.Health}/{seedData.Endurance}");
-            Console.WriteLine($"- Idade: {plant.Age} ciclos");
-            Console.WriteLine($"- Pronta para colheita: {(plant.Harvest ? "✔️" : "❌")}");
-            Console.WriteLine($"- Amostrada: {(plant.Sampled ? "✔️" : "❌")}");
-            Console.WriteLine($"- Estado: {(plant.Dead ? "☠️ Morta" : "🌿 Saudável")}");
-            Console.WriteLine($"- Viabilidade Genética: {(seedData.Viable ? "✔️ Saudável" : "❌ Defeituosa (Irá morrer)")}");
-
-            Console.WriteLine("\n[CONDIÇÕES DO VASO]");
-            Console.WriteLine($"- Água no vaso: {plant.WaterLevel}/100");
-            Console.WriteLine($"- Nutrientes no vaso: {plant.NutritionLevel}/100");
-            Console.WriteLine($"- Toxinas acumuladas: {plant.Toxins}");
-            Console.WriteLine($"- Infestação de pragas: {plant.PestLevel}");
-            Console.WriteLine($"- Ervas daninhas: {plant.WeedLevel}");
-
-            Console.WriteLine("\n[AVISOS AMBIENTAIS]");
-            Console.WriteLine($"- Temperatura: {(plant.ImproperHeat ? "⚠️ Incorreta" : "✔️ OK")}");
-            Console.WriteLine($"- Pressão: {(plant.ImproperPressure ? "⚠️ Incorreta" : "✔️ OK")}");
-            Console.WriteLine($"- Luz: {(plant.ImproperLight ? "⚠️ Incorreta" : "✔️ OK")}");
-        }
-
-        // Consumo
-        Console.WriteLine("\n[CONSUMO]");
-        Console.WriteLine($"- Água: {seedData.WaterConsumption} por ciclo");
-        Console.WriteLine($"- Nutrientes: {seedData.NutrientConsumption} por ciclo");
-
-        // Tolerâncias
-        Console.WriteLine("\n[TOLERÂNCIAS]");
-        Console.WriteLine($"- Luz: Ideal {seedData.IdealLight} ± {seedData.LightTolerance}");
-        Console.WriteLine($"- Temperatura: Ideal {seedData.IdealHeat} ± {seedData.HeatTolerance}");
-        Console.WriteLine($"- Pressão: {seedData.LowPressureTolerance} - {seedData.HighPressureTolerance} kPa");
-        Console.WriteLine($"- Toxinas: até {seedData.ToxinsTolerance}");
-        Console.WriteLine($"- Pragas: até {seedData.PestTolerance}");
-        Console.WriteLine($"- Ervas daninhas: até {seedData.WeedTolerance}");
-
-        // Químicos
-        Console.WriteLine("\n[QUÍMICOS]");
-        if (seedData.Chemicals.Count > 0)
-        {
-            foreach (var chem in seedData.Chemicals)
+            holderInfo = new PlantHolderInfo
             {
-                Console.WriteLine($"- {chem.Key} (Min: {chem.Value.Min}, Max: {chem.Value.Max}, PotDiv: {chem.Value.PotencyDivisor})");
-            }
-        }
-        else
-        {
-            Console.WriteLine("Nenhum químico presente.");
-        }
-
-        // Mutações
-        Console.WriteLine("\n[MUTAÇÕES ATIVAS]");
-        if (seedData.Mutations.Count > 0)
-        {
-            foreach (var mutation in seedData.Mutations)
-            {
-                Console.WriteLine($"- {mutation.Name}");
-            }
-        }
-        else
-        {
-            Console.WriteLine("Nenhuma mutação.");
+                Health = plant.Health,
+                Age = plant.Age,
+                HarvestReady = plant.Harvest,
+                Sampled = plant.Sampled,
+                Dead = plant.Dead,
+                WaterLevel = plant.WaterLevel,
+                NutritionLevel = plant.NutritionLevel,
+                Toxins = plant.Toxins,
+                PestLevel = plant.PestLevel,
+                WeedLevel = plant.WeedLevel,
+                ImproperHeat = plant.ImproperHeat,
+                ImproperPressure = plant.ImproperPressure,
+                ImproperLight = plant.ImproperLight,
+            };
         }
 
-        Console.WriteLine("\n=======================================");
+        // Open the UI first so the client is ready to receive the scan data.
+        _ui.OpenUi(uid, PlantAnalyzerUiKey.Key, args.Args.User);
+        _ui.ServerSendUiMessage(uid, PlantAnalyzerUiKey.Key,
+            new PlantAnalyzerScannedMessage(isPlant, seedInfo, holderInfo));
         args.Handled = true;
     }
 }
